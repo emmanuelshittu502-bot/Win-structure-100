@@ -1,0 +1,15 @@
+name: win_structure, -100
+description: Win Structure 100-B-One Project
+publish to:'none
+version: 1.0.0+1
+environment:
+sdk: ">=3.0.0 <4.0.0"
+dependencies:
+flutter:
+sdk: flutter
+firebase_core: ^2.24.0
+firebase_auth: 4.15.0
+cloud_firestore: ^4.15.0
+geolocator: ^10.1.0
+flutter:
+uses-material-design: 
