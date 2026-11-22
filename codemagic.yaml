@@ -7,17 +7,19 @@ workflows:
       flutter: 3.22.1
       java: 17
     scripts:
-      - name: Auto-fix package name from google-services.json
+      - name: Fix Android Folder Completely
         script: |
-          echo "--- google-services.json package name ---"
-          cat android/app/google-services.json | grep -A2 package_name
-          PKG=$(python3 -c "import json; print(json.load(open('android/app/google-services.json'))['client'][0]['client_info']['android_client_info']['package_name'])")
-          echo "Found package: $PKG"
-          echo "Setting applicationId to $PKG in build.gradle"
-          # Patch build.gradle
-          sed -i "" "s/applicationId \".*\"/applicationId \"$PKG\"/" android/app/build.gradle 2>/dev/null || sed -i "s/applicationId \".*\"/applicationId \"$PKG\"/" android/app/build.gradle
-          grep applicationId android/app/build.gradle
-      - name: Build APK with Firebase
+          cp android/app/google-services.json /tmp/google-services.json
+          PKG=$(python3 -c "import json; print(json.load(open('/tmp/google-services.json'))['client'][0]['client_info']['android_client_info']['package_name'])")
+          echo "Firebase package is: $PKG"
+          ORG=$(echo $PKG | rev | cut -d'.' -f2- | rev)
+          NAME=$(echo $PKG | rev | cut -d'.' -f1 | rev)
+          echo "Org: $ORG Name: $NAME"
+          rm -rf android
+          flutter create --org $ORG --project-name $NAME --platforms=android .
+          cp /tmp/google-services.json android/app/google-services.json
+          ls -l android/app/google-services.json
+      - name: Build APK
         script: |
           flutter pub get
           flutter build apk --release --no-tree-shake-icons
