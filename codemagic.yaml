@@ -7,12 +7,11 @@ workflows:
       flutter: 3.22.1
       java: 17
     scripts:
-      - name: Fix Gradle Error - Recreate Android folder
+      - name: Build APK with Firebase
         script: |
-          rm -rf android
-          flutter create . --platforms=android --org com.winmap --project-name win_map
-      - name: Build APK
-        script: |
+          echo "Checking for google-services.json..."
+          ls -lh android/app/google-services.json
+          cat android/app/google-services.json | grep package_name
           flutter pub get
           flutter build apk --release --no-tree-shake-icons
     artifacts:
