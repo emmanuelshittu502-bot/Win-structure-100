@@ -21,7 +21,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.bone.winstructure"
+        applicationId "com.Winmap.app"
         minSdkVersion flutter.minSdkVersion
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutter.versionCode
