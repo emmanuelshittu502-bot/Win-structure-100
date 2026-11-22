@@ -7,8 +7,9 @@ workflows:
       flutter: 3.22.1
       java: 17
     scripts:
-      - name: Fix Win Map Resources
+      - name: Fix All Broken Android Files
         script: |
+          echo "Fixing styles, icons, and build.gradle..."
           mkdir -p android/app/src/main/res/values
           mkdir -p android/app/src/main/res/drawable
           mkdir -p android/app/src/main/res/drawable-v21
@@ -17,6 +18,7 @@ workflows:
           mkdir -p android/app/src/main/res/mipmap-xhdpi
           mkdir -p android/app/src/main/res/mipmap-xxhdpi
           mkdir -p android/app/src/main/res/mipmap-xxxhdpi
+
           cat > android/app/src/main/res/values/styles.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
@@ -28,6 +30,7 @@ workflows:
               </style>
           </resources>
           EOF
+
           cat > android/app/src/main/res/drawable/launch_background.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
@@ -35,19 +38,7 @@ workflows:
           </layer-list>
           EOF
           cp android/app/src/main/res/drawable/launch_background.xml android/app/src/main/res/drawable-v21/launch_background.xml
+
           for d in android/app/src/main/res/mipmap-*; do
             if [ ! -f "$d/ic_launcher.png" ]; then
-              echo "[STRIPPED 92 bytes]" | base64 -d > "$d/ic_launcher.png"
-              cp "$d/ic_launcher.png" "$d/launcher.png" 2>/dev/null || true
-            fi
-          done
-          sed -i 's/android:label="[^"]*"/android:label="Win Map"/g' android/app/src/main/AndroidManifest.xml || true
-      - name: Get packages
-        script: |
-          flutter clean
-          flutter pub get
-      - name: Build APK
-        script: |
-          flutter build apk --release --no-tree-shake-icons
-    artifacts:
-      - build/app/outputs/flutter-apk/app-release.apk
+              echo "[STRIPPED 92 bytes]" |
