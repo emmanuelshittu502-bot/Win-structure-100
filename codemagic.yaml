@@ -1,7 +1,7 @@
 workflows:
   win-map-android:
     name: Win Map APK
-    instance_type: linux
+    instance_type: mac_mini_m2
     max_build_duration: 30
     environment:
       flutter: 3.22.1
@@ -9,7 +9,6 @@ workflows:
     scripts:
       - name: Fix Win Map Resources
         script: |
-          echo "Fixing Android resources..."
           mkdir -p android/app/src/main/res/values
           mkdir -p android/app/src/main/res/drawable
           mkdir -p android/app/src/main/res/drawable-v21
@@ -18,7 +17,6 @@ workflows:
           mkdir -p android/app/src/main/res/mipmap-xhdpi
           mkdir -p android/app/src/main/res/mipmap-xxhdpi
           mkdir -p android/app/src/main/res/mipmap-xxxhdpi
-          
           cat > android/app/src/main/res/values/styles.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
@@ -30,35 +28,26 @@ workflows:
               </style>
           </resources>
           EOF
-          
           cat > android/app/src/main/res/drawable/launch_background.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
               <item android:drawable="@android:color/white" />
           </layer-list>
           EOF
-          
           cp android/app/src/main/res/drawable/launch_background.xml android/app/src/main/res/drawable-v21/launch_background.xml
-          
-          # Create valid 1x1 PNG icon - this was the bug before
           for d in android/app/src/main/res/mipmap-*; do
             if [ ! -f "$d/ic_launcher.png" ]; then
-              echo "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=" | base64 -d > "$d/ic_launcher.png"
+              echo "[STRIPPED 92 bytes]" | base64 -d > "$d/ic_launcher.png"
               cp "$d/ic_launcher.png" "$d/launcher.png" 2>/dev/null || true
             fi
           done
-          
           sed -i 's/android:label="[^"]*"/android:label="Win Map"/g' android/app/src/main/AndroidManifest.xml || true
-          echo "Fix done!"
-
       - name: Get packages
         script: |
           flutter clean
           flutter pub get
-          
       - name: Build APK
         script: |
           flutter build apk --release --no-tree-shake-icons
-          
     artifacts:
       - build/app/outputs/flutter-apk/app-release.apk
