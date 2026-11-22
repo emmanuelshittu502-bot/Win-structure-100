@@ -1,5 +1,5 @@
 workflows:
-  android-apk:
+  win-map-android:
     name: Win Map APK
     instance_type: mac_mini_m2
     max_build_duration: 20
@@ -7,7 +7,7 @@ workflows:
       flutter: stable
       java: 17
     scripts:
-      - name: Fix Win Map Resources & App Name
+      - name: Fix Win Map Resources
         script: |
           mkdir -p android/app/src/main/res/values
           mkdir -p android/app/src/main/res/drawable
@@ -17,7 +17,6 @@ workflows:
           mkdir -p android/app/src/main/res/mipmap-xhdpi
           mkdir -p android/app/src/main/res/mipmap-xxhdpi
           mkdir -p android/app/src/main/res/mipmap-xxxhdpi
-
           cat > android/app/src/main/res/values/styles.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <resources>
@@ -29,28 +28,19 @@ workflows:
               </style>
           </resources>
           EOF
-
           cat > android/app/src/main/res/drawable/launch_background.xml << 'EOF'
           <?xml version="1.0" encoding="utf-8"?>
           <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
               <item android:drawable="@android:color/white" />
           </layer-list>
           EOF
-
           cp android/app/src/main/res/drawable/launch_background.xml android/app/src/main/res/drawable-v21/launch_background.xml
-
-          # Create dummy launcher icons if missing
           for d in android/app/src/main/res/mipmap-*; do
             if [ ! -f "$d/ic_launcher.png" ]; then
               echo "[STRIPPED 92 bytes]" | base64 -d > "$d/ic_launcher.png"
             fi
           done
-
-          # Set app name to Win Map
-          if [ -f android/app/src/main/AndroidManifest.xml ]; then
-            sed -i 's/android:label="[^"]*"/android:label="Win Map"/g' android/app/src/main/AndroidManifest.xml || true
-          fi
-
+          sed -i 's/android:label="[^"]*"/android:label="Win Map"/g' android/app/src/main/AndroidManifest.xml || true
       - name: Get packages
         script: |
           flutter pub get
