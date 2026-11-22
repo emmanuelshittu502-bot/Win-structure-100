@@ -7,38 +7,13 @@ workflows:
       flutter: 3.22.1
       java: 17
     scripts:
-      - name: Fix All Broken Android Files
+      - name: Fix Gradle Error - Recreate Android folder
         script: |
-          echo "Fixing styles, icons, and build.gradle..."
-          mkdir -p android/app/src/main/res/values
-          mkdir -p android/app/src/main/res/drawable
-          mkdir -p android/app/src/main/res/drawable-v21
-          mkdir -p android/app/src/main/res/mipmap-hdpi
-          mkdir -p android/app/src/main/res/mipmap-mdpi
-          mkdir -p android/app/src/main/res/mipmap-xhdpi
-          mkdir -p android/app/src/main/res/mipmap-xxhdpi
-          mkdir -p android/app/src/main/res/mipmap-xxxhdpi
-
-          cat > android/app/src/main/res/values/styles.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <resources>
-              <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">
-                  <item name="android:windowBackground">@drawable/launch_background</item>
-              </style>
-              <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
-                  <item name="android:windowBackground">?android:windowBackground</item>
-              </style>
-          </resources>
-          EOF
-
-          cat > android/app/src/main/res/drawable/launch_background.xml << 'EOF'
-          <?xml version="1.0" encoding="utf-8"?>
-          <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-              <item android:drawable="@android:color/white" />
-          </layer-list>
-          EOF
-          cp android/app/src/main/res/drawable/launch_background.xml android/app/src/main/res/drawable-v21/launch_background.xml
-
-          for d in android/app/src/main/res/mipmap-*; do
-            if [ ! -f "$d/ic_launcher.png" ]; then
-              echo "[STRIPPED 92 bytes]" |
+          rm -rf android
+          flutter create . --platforms=android --org com.winmap --project-name win_map
+      - name: Build APK
+        script: |
+          flutter pub get
+          flutter build apk --release --no-tree-shake-icons
+    artifacts:
+      - build/app/outputs/flutter-apk/app-release.apk
