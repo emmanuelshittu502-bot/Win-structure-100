@@ -1,13 +1,20 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
-    return const FirebaseOptions(
-      apiKey: "AIzaSyDummyKey-For-Build-12345",
-      appId: "1:123456789:android:b1234567890abcdef",
-      messagingSenderId: "123456789",
-      projectId: "b-one-real-wallet",
-      storageBucket: "b-one-real-wallet.appspot.com",
-    );
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+        return android;
+      default:
+        return android;
+    }
   }
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyYOUR_KEY_HERE',
+    appId: '1:YOUR_APP_ID_HERE',
+    messagingSenderId: 'YOUR_SENDER_ID',
+    projectId: 'win-map-real',
+    storageBucket: 'win-map-real.appspot.com',
+  );
 }
