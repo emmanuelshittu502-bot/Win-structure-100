@@ -1,14 +1,17 @@
-name: win_structure_100
-description: B-ONE 5 majors app
+name: b_one_wallet
+description: B-ONE REAL WALLET - Real Balance Only
 publish_to: 'none'
 version: 1.0.0+1
+
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: '>=3.0.0 <4.0.0'
+
 dependencies:
   flutter:
     sdk: flutter
   firebase_core: ^2.24.0
   cloud_firestore: ^4.15.0
-  firebase_auth: ^4.16.0
+  cupertino_icons: ^1.0.2
+
 flutter:
   uses-material-design: true
