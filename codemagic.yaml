@@ -1,26 +1,61 @@
-
 workflows:
-  win-map-android:
-    name: WIN MAP Android Build
-    max_build_duration: 120
+  android-apk:
+    name: Win Map APK
     instance_type: mac_mini_m2
-
+    max_build_duration: 20
     environment:
-      flutter: 3.24.5
-
+      flutter: stable
+      java: 17
     scripts:
-      - name: Prepare Flutter
+      - name: Fix Win Map Resources & App Name
         script: |
-          echo "flutter.sdk=$FLUTTER_ROOT" > "$CM_BUILD_DIR/android/local.properties"
+          mkdir -p android/app/src/main/res/values
+          mkdir -p android/app/src/main/res/drawable
+          mkdir -p android/app/src/main/res/drawable-v21
+          mkdir -p android/app/src/main/res/mipmap-hdpi
+          mkdir -p android/app/src/main/res/mipmap-mdpi
+          mkdir -p android/app/src/main/res/mipmap-xhdpi
+          mkdir -p android/app/src/main/res/mipmap-xxhdpi
+          mkdir -p android/app/src/main/res/mipmap-xxxhdpi
 
-      - name: Get Flutter dependencies
+          cat > android/app/src/main/res/values/styles.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <resources>
+              <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">
+                  <item name="android:windowBackground">@drawable/launch_background</item>
+              </style>
+              <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
+                  <item name="android:windowBackground">?android:windowBackground</item>
+              </style>
+          </resources>
+          EOF
+
+          cat > android/app/src/main/res/drawable/launch_background.xml << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+              <item android:drawable="@android:color/white" />
+          </layer-list>
+          EOF
+
+          cp android/app/src/main/res/drawable/launch_background.xml android/app/src/main/res/drawable-v21/launch_background.xml
+
+          # Create dummy launcher icons if missing
+          for d in android/app/src/main/res/mipmap-*; do
+            if [ ! -f "$d/ic_launcher.png" ]; then
+              echo "[STRIPPED 92 bytes]" | base64 -d > "$d/ic_launcher.png"
+            fi
+          done
+
+          # Set app name to Win Map
+          if [ -f android/app/src/main/AndroidManifest.xml ]; then
+            sed -i 's/android:label="[^"]*"/android:label="Win Map"/g' android/app/src/main/AndroidManifest.xml || true
+          fi
+
+      - name: Get packages
         script: |
           flutter pub get
-
-      - name: Build Android APK
+      - name: Build APK
         script: |
-          flutter build apk --debug
-
+          flutter build apk --release --verbose
     artifacts:
-      - build/app/outputs/flutter-apk/*.apk
-
+      - build/app/outputs/flutter-apk/app-release.apk
