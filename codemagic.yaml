@@ -7,11 +7,18 @@ workflows:
       flutter: 3.22.1
       java: 17
     scripts:
+      - name: Auto-fix package name from google-services.json
+        script: |
+          echo "--- google-services.json package name ---"
+          cat android/app/google-services.json | grep -A2 package_name
+          PKG=$(python3 -c "import json; print(json.load(open('android/app/google-services.json'))['client'][0]['client_info']['android_client_info']['package_name'])")
+          echo "Found package: $PKG"
+          echo "Setting applicationId to $PKG in build.gradle"
+          # Patch build.gradle
+          sed -i "" "s/applicationId \".*\"/applicationId \"$PKG\"/" android/app/build.gradle 2>/dev/null || sed -i "s/applicationId \".*\"/applicationId \"$PKG\"/" android/app/build.gradle
+          grep applicationId android/app/build.gradle
       - name: Build APK with Firebase
         script: |
-          echo "Checking for google-services.json..."
-          ls -lh android/app/google-services.json
-          cat android/app/google-services.json | grep package_name
           flutter pub get
           flutter build apk --release --no-tree-shake-icons
     artifacts:
