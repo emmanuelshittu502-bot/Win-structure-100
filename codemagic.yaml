@@ -1,0 +1,25 @@
+
+workflows:
+  win-map-android:
+    name: WIN MAP Android Build
+    max_build_duration: 120
+    instance_type: linux_x2
+
+    environment:
+      flutter: 3.24.5
+
+    scripts:
+      - name: Prepare Flutter
+        script: |
+          echo "flutter.sdk=$FLUTTER_ROOT" > "$CM_BUILD_DIR/android/local.properties"
+
+      - name: Get Flutter dependencies
+        script: |
+          flutter pub get
+
+      - name: Build Android APK
+        script: |
+          flutter build apk --debug
+
+    artifacts:
+      - build/app/outputs/flutter-apk/*.apk
